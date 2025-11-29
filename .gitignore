@@ -1,0 +1,17 @@
+# colcon / ROS2 build artifacts
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+
+# 编辑器配置
+.vscode/
+.idea/
+
+# 其他杂项
+*.swp
+*~
+.DS_Store
