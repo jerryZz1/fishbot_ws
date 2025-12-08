@@ -4,7 +4,7 @@
 
 ## 功能模块
 
-- `turtle_joy`：手柄控制底盘 + YZ 轴
+- `turtle_joy`：手柄控制底盘 + YZ 轴 + 绞龙直流电机
 - `vib_motor_driver`：通过 Modbus-RTU 控制振动电机
 - `micro_ros_agent`：与 ESP32-S3 micro-ROS 客户端通讯
 - `a22_ultrasonic_driver`（计划）：多路超声 Modbus 采集
