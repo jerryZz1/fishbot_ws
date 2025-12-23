@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    mybot_laser:
+    - 默认 child link 名为 "laser"（建议与 /scan.frame_id 一致）
+    - parent 由入口文件传入，通常是 base_link
+    - xyz/rpy 由入口传入，便于后续实测调整
+  -->
+  <xacro:macro name="mybot_laser" params="parent xyz rpy">
+
+    <link name="laser">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <!-- 雷达外形占位：小圆柱 -->
+          <cylinder radius="0.04" length="0.06"/>
+        </geometry>
+        <material name="black">
+          <color rgba="0.1 0.1 0.1 0.9"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.04" length="0.06"/>
+        </geometry>
+      </collision>
+
+      <!-- 惯性占位 -->
+      <xacro:cylinder_inertia m="0.3" r="0.04" h="0.06"/>
+    </link>
+
+    <joint name="laser_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="laser"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 惯性工具宏（你已有 common_inertia.xacro 就保留；如果没有，先注释这行也能跑 TF） -->
+  <xacro:include filename="$(find mybot_description)/urdf/mybot/common_inertia.xacro" />
+
+  <!--
+    mybot_base:
+    - base_footprint：地面投影（z=0）
+    - base_link：车体坐标系（放在车体几何中心附近）
+    - wheels/casters：仅用于TF与可视化，后续上 ros2_control 再完善关节类型与传动
+  -->
+  <xacro:macro name="mybot_base" params="
+      body_length:=0.868
+      body_width:=0.512
+      body_height:=0.490
+      wheel_radius:=0.100
+      wheel_thickness:=0.050
+      caster_radius:=0.030
+      caster_height:=0.030
+    ">
+
+    <!-- 1) base_footprint：地面坐标系 -->
+    <link name="base_footprint"/>
+
+    <!-- 2) base_link：车体坐标系（将车体整体抬到离地 wheel_radius + body_height/2） -->
+    <joint name="base_footprint_to_base_link" type="fixed">
+      <parent link="base_footprint"/>
+      <child link="base_link"/>
+      <origin xyz="0 0 ${wheel_radius + body_height/2.0}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 3) 车体长方体（视觉 + 碰撞 + 惯性） -->
+    <link name="base_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${body_length} ${body_width} ${body_height}"/>
+        </geometry>
+        <material name="blue">
+          <color rgba="0.1 0.1 1.0 0.5"/>
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${body_length} ${body_width} ${body_height}"/>
+        </geometry>
+      </collision>
+
+      <!-- 惯性：先用一个简单 box 惯性占位（后续可按真实质量/分布细化） -->
+      <xacro:box_inertia m="20.0" x="${body_length}" y="${body_width}" z="${body_height}"/>
+    </link>
+
+    <!-- ===================== 主动轮（左右各一个，车身两侧中间） ===================== -->
+    <!-- 左轮 -->
+    <link name="left_wheel_link">
+      <visual>
+        <!-- 轮子中心高度≈轮半径；轮子在 base_link 坐标系下：z = -body_height/2（到底盘底面）+ wheel_radius -->
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+        <material name="dark_grey">
+          <color rgba="0.2 0.2 0.2 0.8"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="2.0" r="${wheel_radius}" h="${wheel_thickness}"/>
+    </link>
+
+    <joint name="left_wheel_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="left_wheel_link"/>
+      <origin xyz="0 ${body_width/2.0 + wheel_thickness/2.0} ${-body_height/2.0}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 右轮 -->
+    <link name="right_wheel_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+        <material name="dark_grey">
+          <color rgba="0.2 0.2 0.2 0.8"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="2.0" r="${wheel_radius}" h="${wheel_thickness}"/>
+    </link>
+
+    <joint name="right_wheel_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="right_wheel_link"/>
+      <origin xyz="0 ${-body_width/2.0 - wheel_thickness/2.0} ${-body_height/2.0}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- ===================== 万向轮（前后各一个，占位用） ===================== -->
+    <!-- 前万向轮 -->
+    <link name="caster_front_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+        <material name="grey">
+          <color rgba="0.6 0.6 0.6 0.8"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+      </collision>
+      <xacro:sphere_inertia m="0.5" r="${caster_radius}"/>
+    </link>
+
+    <joint name="caster_front_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="caster_front_link"/>
+      <origin xyz="${body_length/2.0 - 0.08} 0 ${-body_height/2.0 - wheel_radius + caster_radius}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 后万向轮 -->
+    <link name="caster_rear_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+        <material name="grey">
+          <color rgba="0.6 0.6 0.6 0.8"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${caster_radius}"/>
+        </geometry>
+      </collision>
+      <xacro:sphere_inertia m="0.5" r="${caster_radius}"/>
+    </link>
+
+    <joint name="caster_rear_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="caster_rear_link"/>
+      <origin xyz="${-body_length/2.0 + 0.08} 0 ${-body_height/2.0 - wheel_radius + caster_radius}" rpy="0 0 0"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>

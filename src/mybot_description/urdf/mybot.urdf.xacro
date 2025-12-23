@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<robot name="mybot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 1) 引入底盘与传感器模块 -->
+  <xacro:include filename="$(find mybot_description)/urdf/mybot/base.urdf.xacro"/>
+  <xacro:include filename="$(find mybot_description)/urdf/mybot/sensor/laser.urdf.xacro"/>
+  <xacro:include filename="$(find mybot_description)/urdf/mybot/sensor/ultrasonic.urdf.xacro"/>
+
+
+  <!-- 2) 生成底盘（按你的实机尺寸） -->
+  <xacro:mybot_base
+    body_length="0.868"
+    body_width="0.512"
+    body_height="0.490"
+    wheel_radius="0.100"
+    wheel_thickness="0.050"
+    caster_radius="0.1"
+    caster_height="0.030"
+  />
+
+  <!-- 3) 挂载激光雷达：车身上方正中间
+       base_link 原点在车体中心，顶面 z=+0.245，再加 0.05 安装高度 => 0.295
+  -->
+  <xacro:mybot_laser
+    parent="base_link"
+    xyz="0 0 0.295"
+    rpy="0 0 0"
+  />
+
+  <!-- 4) 三个超声（前/左/右），安装在车体中部高度附近（z≈0） -->
+  <xacro:mybot_ultrasonic
+    name="ultrasonic_front"
+    parent="base_link"
+    xyz="0.444 0 0"
+    rpy="0 0 0"
+  />
+
+  <xacro:mybot_ultrasonic
+    name="ultrasonic_left"
+    parent="base_link"
+    xyz="0 0.266 0"
+    rpy="0 0 1.57079632679"
+  />
+
+  <xacro:mybot_ultrasonic
+    name="ultrasonic_right"
+    parent="base_link"
+    xyz="0 -0.266 0"
+    rpy="0 0 -1.57079632679"
+  />
+
+
+</robot>
