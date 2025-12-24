@@ -35,11 +35,11 @@ class JoyToCar(Node):
         self.sub = self.create_subscription(Joy, 'joy', self.joy_cb, 10)
 
         # 底盘差速控制
-        self.pub_cmd_vel = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.pub_cmd_vel = self.create_publisher(Twist, 'cmd_vel_raw', 10)
         # 导轨控制给 ESP32：cmd_vel_axis
-        self.pub_axis = self.create_publisher(Twist, 'cmd_vel_axis', 10)
+        self.pub_axis = self.create_publisher(Twist, 'cmd_vel_axis_raw', 10)
         # 直流电机控制给 ESP32：dc_motor_cmd（std_msgs/Float32）
-        self.pub_dc = self.create_publisher(Float32, 'dc_motor_cmd', 10)
+        self.pub_dc = self.create_publisher(Float32, 'dc_motor_cmd_raw', 10)
 
         self.get_logger().info(
             "Joy → /cmd_vel + /cmd_vel_axis + /dc_motor_cmd 已启动"
